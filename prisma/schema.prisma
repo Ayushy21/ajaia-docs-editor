@@ -1,0 +1,44 @@
+// For production PostgreSQL, change provider to "postgresql".
+// content is stored as a JSON string (TipTap/ProseMirror document) for
+// portability between SQLite (local) and PostgreSQL (production).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String          @id @default(cuid())
+  name           String
+  email          String          @unique
+  ownedDocuments Document[]      @relation("DocumentOwner")
+  shares         DocumentShare[]
+  createdAt      DateTime        @default(now())
+}
+
+model Document {
+  id        String          @id @default(cuid())
+  title     String
+  content   String
+  ownerId   String
+  owner     User            @relation("DocumentOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  shares    DocumentShare[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+model DocumentShare {
+  id         String   @id @default(cuid())
+  documentId String
+  userId     String
+  permission String   @default("editor")
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([documentId, userId])
+}
