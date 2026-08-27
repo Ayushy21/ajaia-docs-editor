@@ -137,6 +137,15 @@ DATABASE_URL   PostgreSQL connection string (with sslmode=require for most hosts
 
 No other secrets are needed — authentication is the demo cookie switcher.
 
+### Troubleshooting
+
+- **`P1001: Can't reach database server at 'localhost'`** during the Vercel build
+  means `DATABASE_URL` is unset or still points at a local/placeholder host. Set
+  it to a real hosted Postgres URL and redeploy.
+- If you provision **Vercel Postgres / Neon** from the Storage tab, it adds its
+  own `DATABASE_URL`; delete any `DATABASE_URL` you added by hand so there is only
+  one.
+
 ## Architecture
 
 See [ARCHITECTURE.md](ARCHITECTURE.md).
