@@ -81,10 +81,14 @@ cannot bypass access rules.
 
 ## Local setup
 
+Requires a PostgreSQL database. Start one locally with Docker, or point
+`DATABASE_URL` at any free hosted Postgres (Neon / Vercel Postgres / Supabase).
+
 ```bash
+docker run -d --name draftspace-db -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:16
 npm install
-cp .env.example .env        # DATABASE_URL defaults to file:./dev.db
-npx prisma db push          # create the SQLite schema
+cp .env.example .env        # edit DATABASE_URL if needed
+npx prisma db push          # create the schema
 npm run db:seed             # create the 3 demo users + a sample document
 npm run dev                 # http://localhost:3000
 ```
@@ -108,22 +112,30 @@ Max size:  1 MB
 Invalid uploads (unsupported extension, oversized, empty, unreadable, malformed)
 produce a visible error and no document is created.
 
-## Deployment
+## Deployment (Vercel)
 
-Any Node host that supports Next.js (Vercel, Render, Railway, Fly).
-
-1. Set `DATABASE_URL` to a PostgreSQL connection string.
-2. In `prisma/schema.prisma` set `datasource db { provider = "postgresql" }`.
-3. Build command: `npm run build` (runs `prisma generate` then `next build`).
-4. Release/predeploy step: `npx prisma db push` (or `prisma migrate deploy` if
-   you generate migrations) then `npm run db:seed`.
-5. Start command: `npm run start`.
+1. **Create a Postgres database.** In the Vercel project: **Storage → Create
+   Database → Postgres**. Vercel adds a `DATABASE_URL` (and `POSTGRES_*`) env var
+   automatically. Any external Postgres (Neon, Supabase, Railway) works too — just
+   set `DATABASE_URL` yourself under **Settings → Environment Variables**.
+2. **Framework preset:** Next.js. **Root directory:** `./`. Leave build/output
+   settings at their defaults.
+3. **Environment variable:** `DATABASE_URL` = your Postgres connection string
+   (most managed providers require `?sslmode=require`). Scope it to Production +
+   Preview (+ Development if you use `vercel env pull` locally).
+4. Deploy. The `build` script runs
+   `prisma generate && prisma db push && tsx prisma/seed.ts && next build`, so the
+   schema is created and the three demo users are seeded on the first deploy. The
+   seed is idempotent and safe to run on every subsequent deploy.
+5. After deploy, put the URL in `README.md` and `SUBMISSION.md`.
 
 Required environment variables:
 
 ```
 DATABASE_URL   PostgreSQL connection string (with sslmode=require for most hosts)
 ```
+
+No other secrets are needed — authentication is the demo cookie switcher.
 
 ## Architecture
 

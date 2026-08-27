@@ -13,7 +13,7 @@ Next.js App Router
         │
    Prisma ORM
         │
-   SQLite (local)  /  PostgreSQL (production)
+   PostgreSQL (local + production)
 ```
 
 Every request that touches a document resolves the current user from the

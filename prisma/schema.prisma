@@ -1,13 +1,12 @@
-// For production PostgreSQL, change provider to "postgresql".
-// content is stored as a JSON string (TipTap/ProseMirror document) for
-// portability between SQLite (local) and PostgreSQL (production).
+// PostgreSQL for both local development and production.
+// content is stored as a JSON string (TipTap/ProseMirror document).
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
